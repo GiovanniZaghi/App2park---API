@@ -1,0 +1,54 @@
+<?php
+namespace Controllers;
+
+use \Core\Controller;
+use \Models\Receipt;
+
+class ReceiptController extends Controller {
+
+    public function index() {}
+    
+
+    public function new_receipt() {
+		$array = array('status'=>'', 'message'=>'');
+
+		$method = $this->getMethod();
+        $data = $this->getRequestData();
+		$receipt = new Receipt();
+
+        if($method == 'POST') {        
+                $id_receipt = $receipt->createReceipt($data['id_ticket'], $data['id_cupom'], $data['res']);
+
+                $array['status'] = 'COMPLETED';
+			    $array['data'] = $receipt->findReceipt($id_receipt);				   
+
+        } else {
+			$array['status'] = 'ERROR';
+			$array['message'] = 'Método de requisição incompatível';
+        }
+
+		$this->returnJson($array);
+    }
+    
+    public function get_receipt() {
+		$array = array('status'=>'', 'message'=>'');
+
+		$method = $this->getMethod();
+		$data = $this->getRequestData();
+
+			switch($method) {
+                case 'POST':
+                    $receipt = new Receipt();
+
+					$array['status'] = 'COMPLETED';
+					$array['data'] = $receipt->findReceiptByTicket($data['id_ticket'], $data['id_cupom']);
+
+					break;
+				default:
+					$array['status'] = 'ERROR';
+					$array['message'] = 'Método '.$method.' não disponível';
+					break;
+			}
+		$this->returnJson($array);
+	}
+}
